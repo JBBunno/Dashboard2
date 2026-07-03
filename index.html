@@ -271,7 +271,10 @@ td.notes-cell{white-space:normal;max-width:260px;color:var(--bright);text-align:
           <div class="leg-line" style="background:var(--blue);border-top:2px dashed var(--blue);height:0"></div><span>Forecast</span>
         </div>
         <div class="chart-legend-item">
-          <div class="leg-line" style="background:rgba(180,180,180,.4);height:10px;border-radius:2px"></div><span>Spent (hrs)</span>
+          <div class="leg-line" style="background:rgba(91,155,213,.55);height:10px;border-radius:2px"></div><span>Spent (hrs)</span>
+        </div>
+        <div class="chart-legend-item">
+          <div class="leg-line" style="background:rgba(180,180,180,.35);height:10px;border-radius:2px"></div><span>Remaining (hrs)</span>
         </div>
       </div>
       <div style="position:relative;height:180px">
@@ -591,7 +594,7 @@ function renderScurve() {
   const s = d.series[area];
   if (!s) return;
 
-  const { labels, work, actual, baseline } = s;
+  const { labels, work, actual, baseline, spentBar, remainingBar } = s;
 
   // Find where actual data ends
   let cutoff = actual.length - 1;
@@ -607,11 +610,12 @@ function renderScurve() {
     forecast[i] = Math.min(maxBase, actual[cutoff] + (remaining / steps) * (i - cutoff));
   }
 
-  // Per-period spent (bar heights)
-  const spent = [actual[0] || 0];
-  for (let i = 1; i < actual.length; i++) {
-    spent.push(Math.max(0, actual[i] - actual[i - 1]));
-  }
+  // Bar heights come straight from the backend: per-period planned Work
+  // hours, split into "already past today" (spentBar) vs "still ahead of
+  // today" (remainingBar). Fall back to zeros if an older API response
+  // without these fields is still cached.
+  const spent  = spentBar    || labels.map(() => 0);
+  const remain = remainingBar || labels.map(() => 0);
 
   // Thin x-axis labels
   const step = Math.ceil(labels.length / 18);
@@ -626,8 +630,13 @@ function renderScurve() {
       datasets: [
         {
           type: 'bar', label: 'Spent (hrs)', data: spent,
-          backgroundColor: 'rgba(180,180,180,.2)', borderColor: 'transparent',
-          yAxisID: 'yHrs', order: 4,
+          backgroundColor: 'rgba(91,155,213,.55)', borderColor: 'transparent',
+          yAxisID: 'yHrs', order: 5, stack: 'hrs',
+        },
+        {
+          type: 'bar', label: 'Remaining (hrs)', data: remain,
+          backgroundColor: 'rgba(180,180,180,.35)', borderColor: 'transparent',
+          yAxisID: 'yHrs', order: 4, stack: 'hrs',
         },
         {
           type: 'line', label: 'Planned', data: work,
