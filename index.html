@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,11 +133,14 @@ tr:hover td{background:rgba(75,142,245,.04)}
 .gantt-row{display:flex;align-items:center;gap:8px}
 .gantt-label{width:150px;font-size:11px;color:var(--text);text-align:right;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
-.gantt-track{flex:1;height:16px;background:var(--border);border-radius:3px;overflow:hidden;display:flex}
+.gantt-track{flex:1;height:16px;background:var(--border);border-radius:3px;overflow:hidden;display:flex;position:relative}
+.gantt-target{position:absolute;top:-2px;bottom:-2px;width:3px;margin-left:-1px;background:var(--amber);box-shadow:0 0 0 1px rgba(0,0,0,.45);border-radius:1px;pointer-events:none}
 .gantt-offset{height:100%;background:transparent}
 .gantt-done{height:100%;background:var(--green)}
 .gantt-rem{height:100%;background:rgba(75,142,245,.35)}
-.gantt-pct{font-family:var(--font-d);font-size:10px;color:var(--muted);width:34px;text-align:right;flex-shrink:0}
+.gantt-pct{font-family:var(--font-d);font-size:10px;color:var(--muted);width:78px;text-align:right;flex-shrink:0;white-space:nowrap}
+.gantt-pct b{font-weight:600}
+.tgt-ok{color:var(--green)} .tgt-warn{color:var(--amber)} .tgt-bad{color:var(--red)}
 .gantt-legend{display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:var(--muted)}
 .gantt-legend span{display:flex;align-items:center;gap:5px}
 .gantt-legend i{display:inline-block;width:12px;height:7px;border-radius:2px}
@@ -196,7 +197,7 @@ td.notes-cell{white-space:normal;max-width:260px;color:var(--bright);text-align:
 .gantt-row.pd-click:hover .gantt-label{color:var(--amber)}
 .pd-bg{position:fixed;inset:0;background:rgba(5,8,12,.7);display:none;align-items:center;justify-content:center;z-index:900;padding:16px}
 .pd-bg.open{display:flex}
-.pd-modal{background:var(--slate);border:1px solid var(--border);border-radius:8px;width:100%;max-width:620px;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.55);overflow:hidden}
+.pd-modal{background:var(--slate);border:1px solid var(--border);border-radius:8px;width:100%;max-width:860px;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.55);overflow:hidden}
 .pd-head{background:var(--panel2);padding:16px 20px;display:flex;gap:12px;align-items:flex-start;border-bottom:2px solid var(--amber)}
 .pd-eyebrow{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
 .pd-title{font-size:17px;font-weight:600;line-height:1.3;color:var(--bright)}
@@ -223,6 +224,30 @@ td.notes-cell{white-space:normal;max-width:260px;color:var(--bright);text-align:
 .pd-notes.pd-empty{color:var(--muted);font-style:italic;border-left-color:var(--border)}
 .pd-more{font-size:11px;color:var(--muted);margin:4px 0 16px}
 .pd-loading{font-size:12px;color:var(--muted);margin-bottom:16px}
+.pd-tile{cursor:pointer;transition:border-color .12s,background .12s}
+.pd-tile:hover{border-color:var(--blue)}
+.pd-tile.sel{border-color:var(--amber);background:rgba(232,152,32,.08)}
+.pd-hint{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400}
+.pd-list-head{font-size:11px;color:var(--muted);margin:2px 0 6px}
+.pd-scroll{max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:var(--r)}
+.pd-scroll thead th{position:sticky;top:0;background:var(--slate);z-index:1}
+.pd-wbs{color:var(--muted);font-family:var(--font-d);font-size:11px;white-space:nowrap}
+.pd-wo{color:var(--muted);font-family:var(--font-d);font-size:11px;white-space:nowrap}
+.pd-ms{color:var(--amber);font-size:10px}
+.pd-note{cursor:help;font-size:11px}
+.sd-chip{font-family:var(--font-d);font-size:11px;white-space:nowrap;background:transparent;color:var(--amber);
+  border:1px solid rgba(232,152,32,.5);border-radius:var(--r);padding:4px 9px;cursor:pointer}
+.sd-chip:hover{background:rgba(232,152,32,.1)}
+.gap-ok{color:var(--green)} .gap-warn{color:var(--amber);font-weight:600} .gap-bad{color:var(--red);font-weight:600;cursor:help}
+.sd-chip.unset{color:var(--red);border-color:rgba(224,85,85,.6)}
+.sd-row{display:grid;gap:10px}
+.sd-row label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.sd-row select{padding:9px 6px;background:var(--panel);color:var(--bright);border:1px solid var(--border);
+  border-radius:var(--r);font-family:var(--font-d);font-size:13px}
+.sd-row input{width:100%;padding:9px 10px;background:var(--panel);color:var(--bright);border:1px solid var(--border);
+  border-radius:var(--r);font-family:var(--font-d);font-size:13px;color-scheme:dark}
+.sd-msg{font-size:12px;min-height:1em;margin-top:8px}
+.sd-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 </style>
 </head>
 <body>
@@ -235,6 +260,7 @@ td.notes-cell{white-space:normal;max-width:260px;color:var(--bright);text-align:
   <span class="hdr-name" id="hdrName">LiveTrack Shutdown Dashboard</span>
   <span class="hdr-meta" id="hdrUpload"></span>
   <span class="hdr-ago" id="hdrAgo"></span>
+  <button class="sd-chip" id="sdChip" onclick="sdOpen()" title="Scheduler: change the status date (PIN)">Status date: —</button>
   <button class="btn" onclick="loadAll()">↻ Refresh</button>
 </header>
 <nav>
@@ -276,6 +302,8 @@ td.notes-cell{white-space:normal;max-width:260px;color:var(--bright);text-align:
         <span><i style="background:var(--muted)"></i> Start Offset</span>
         <span><i style="background:var(--green)"></i> Complete</span>
         <span><i style="background:rgba(75,142,245,.35)"></i> Remaining</span>
+        <span><i style="background:var(--amber);width:3px"></i> Target (baseline at status date)</span>
+        <span style="margin-left:auto">Actual % / Target %</span>
       </div>
       <div class="gantt-wrap" id="ganttChart"></div>
     </div>
@@ -287,7 +315,7 @@ td.notes-cell{white-space:normal;max-width:260px;color:var(--bright);text-align:
       </div>
       <div class="chart-legend">
         <div class="chart-legend-item">
-          <div class="leg-line" style="background:var(--red)"></div><span>Planned</span>
+          <div class="leg-line" style="background:var(--red)"></div><span>Baseline</span>
         </div>
         <div class="chart-legend-item">
           <div class="leg-line" style="background:#000;border-top:2px dashed #000;height:0"></div><span style="color:var(--bright)">Completed</span>
@@ -296,11 +324,13 @@ td.notes-cell{white-space:normal;max-width:260px;color:var(--bright);text-align:
           <div class="leg-line" style="background:var(--blue);border-top:2px dashed var(--blue);height:0"></div><span>Forecast</span>
         </div>
         <div class="chart-legend-item">
-          <div class="leg-line" style="background:rgba(91,155,213,.55);height:10px;border-radius:2px"></div><span>Spent (hrs)</span>
+          <div class="leg-line" style="background:rgba(180,180,180,.45);height:10px;border-radius:2px"></div><span>Baseline (hrs)</span>
         </div>
         <div class="chart-legend-item">
-          <div class="leg-line" style="background:rgba(180,180,180,.35);height:10px;border-radius:2px"></div><span>Remaining (hrs)</span>
+          <div class="leg-line" style="background:rgba(63,191,127,.75);height:10px;border-radius:2px"></div><span>Actual (hrs)</span>
         </div>
+        <div class="chart-legend-item" id="scurveSD" style="color:var(--amber)"></div>
+        <div class="chart-legend-item" id="scurveGap"></div>
       </div>
       <div style="position:relative;height:180px">
         <canvas id="scurveCanvas"></canvas>
@@ -404,6 +434,7 @@ let _outDatesErr = null;
 let _fieldRowsFiltered = [];
 let _outstandingRowsFiltered = [];
 let _scurveChart = null;
+let _statusDate = null, _statusDateTxt = '', _statusDateSet = false;
 // ── TABS ──────────────────────────────────────────────────────
 function switchTab(id, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -467,6 +498,12 @@ function applyMeta(m) {
     document.getElementById('execShutdownName').textContent = m.shutdownName;
     document.title = m.shutdownName;
   }
+  _statusDateTxt = m.statusDate || '';
+  _statusDateSet = !!m.statusDateSet;
+  _statusDate = (m.statusDate && parseShutDate(m.statusDate)) || new Date();
+  const chip = document.getElementById('sdChip');
+  chip.textContent = 'Status date: ' + (m.statusDate || '—') + (m.statusDateSet ? '' : ' (not set)') + '  ✎';
+  chip.classList.toggle('unset', !m.statusDateSet);
   if (m.lastUpload) {
     document.getElementById('hdrUpload').textContent = 'Last upload: ' + m.lastUpload;
   }
@@ -517,6 +554,11 @@ function renderExec() {
       <div class="kpi-cell-value big ${pctCls(pc)}">${pc}%</div>
     </div>
     <div class="kpi-cell">
+      <div class="kpi-cell-label">Target (Baseline)</div>
+      <div class="kpi-cell-value big ${kpis.targetPct == null ? 'kv-white' : tgtCls(pc, kpis.targetPct).replace('tgt-ok','kv-green').replace('tgt-warn','kv-amber').replace('tgt-bad','kv-red')}">
+        ${kpis.targetPct == null ? '—' : kpis.targetPct + '%'}</div>
+    </div>
+    <div class="kpi-cell">
       <div class="kpi-cell-label">Forecast Finish</div>
       <div class="kpi-cell-value kv-white" style="font-size:16px">${kpis.forecastFinish || '—'}</div>
     </div>
@@ -542,7 +584,7 @@ function renderExec() {
   if (mwOpt) sel.value = mwOpt.name;
   renderMaintWindow();
   // Area table
-  const cols = ['Area','% Comp','Duration','Completed Work','Total Work','Remaining Work','Start','Forecast Finish','Hrs to Critical','Finish Var'];
+  const cols = ['Area','% Comp','Target','Duration','Completed Work','Total Work','Remaining Work','Start','Forecast Finish','Hrs to Critical','Finish Var'];
   const tbody = (areas || []).map((a, idx) => {
     const pc2 = a.pctComplete || 0;
     const tagCls = pc2 >= 90 ? 'tag-green' : pc2 >= 50 ? 'tag-amber' : 'tag-red';
@@ -550,6 +592,7 @@ function renderExec() {
     return `<tr class="pd-click" onclick="pdShow(_exec.areas[${idx}].name)" title="Click for detail">
       <td>${a.name}</td>
       <td><span class="tag ${tagCls}">${pc2}%</span></td>
+      <td>${a.targetPct == null ? '—' : `<span class="${tgtCls(pc2, a.targetPct)}">${a.targetPct}%</span>`}</td>
       <td>${fmtN1(a.duration)}</td>
       <td>${fmtN(a.completedWork,2)}</td>
       <td>${fmtN(a.totalWork,2)}</td>
@@ -562,7 +605,7 @@ function renderExec() {
   }).join('');
   document.getElementById('areaTable').innerHTML =
     `<thead><tr>${cols.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-     <tbody>${tbody || '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No data</td></tr>'}</tbody>`;
+     <tbody>${tbody || '<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No data</td></tr>'}</tbody>`;
 }
 function renderMaintWindow() {
   const d = _exec;
@@ -601,6 +644,12 @@ function renderMaintWindow() {
       </div>
     </div>`;
 }
+// Target colouring: on/ahead = green, up to 10 points behind = amber, more = red
+function tgtCls(pc, tg) {
+  if (tg === null || tg === undefined) return '';
+  const gap = pc - tg;
+  return gap >= 0 ? 'tgt-ok' : gap >= -10 ? 'tgt-warn' : 'tgt-bad';
+}
 // ── GANTT ─────────────────────────────────────────────────────
 function renderGantt() {
   const d = _gantt;
@@ -612,6 +661,8 @@ function renderGantt() {
     const donePct = (a.completed   / maxHrs * 100).toFixed(2);
     const remPct  = (a.remaining   / maxHrs * 100).toFixed(2);
     const restPct = Math.max(0, 100 - parseFloat(offPct) - parseFloat(donePct) - parseFloat(remPct)).toFixed(2);
+    const tg = (typeof a.targetPct === 'number') ? a.targetPct : null;
+    const tgLeft = tg === null ? null : ((a.startOffset + (a.completed + a.remaining) * tg / 100) / maxHrs * 100).toFixed(2);
     return `<div class="gantt-row pd-click" onclick="pdShow(_gantt.areas[${idx}].name)" title="Click for detail">
       <div class="gantt-label" title="${a.name}">${a.name}</div>
       <div class="gantt-track">
@@ -619,8 +670,10 @@ function renderGantt() {
         <div class="gantt-done"   style="flex:${donePct}"></div>
         <div class="gantt-rem"    style="flex:${remPct}"></div>
         <div style="flex:${restPct}"></div>
+        ${tgLeft === null ? '' : `<div class="gantt-target" style="left:${tgLeft}%" title="Target ${tg}%"></div>`}
       </div>
-      <div class="gantt-pct">${a.pctComplete}%</div>
+      <div class="gantt-pct">${tg === null ? `${a.pctComplete}%`
+        : `<b class="${tgtCls(a.pctComplete, tg)}">${a.pctComplete}%</b> / ${tg}%`}</div>
     </div>`;
   }).join('');
 }
@@ -633,32 +686,71 @@ function initScurve() {
   renderScurve();
 }
 function renderScurve() {
+  // Lines are percentages:
+  //   Baseline  = cumulative baseline work ÷ total baseline work
+  //   Completed = cumulative actual work   ÷ total FORECAST work (to the status date)
+  //   Forecast  = the current schedule's cumulative Work ÷ total forecast work → ends at 100%.
+  //               Where the schedule has been statused properly it sits on Completed;
+  //               work left in past periods (not updated / not rescheduled) shows as a gap.
+  // Bars are hours per period: Baseline and Actual (actual up to the status date).
   const d = _scurve;
   if (!d || !d.series) return;
   const area = document.getElementById('scurveArea').value;
   const s = d.series[area];
   if (!s) return;
-  const { labels, work, actual, baseline, spentBar, remainingBar, nowIndex } = s;
-  const maxWork = work[work.length - 1] || 1;
-  const idx = (typeof nowIndex === 'number' && nowIndex >= 0) ? nowIndex : actual.length - 1;
-  const completed = actual.map((v, i) => i <= idx ? v : null);
-  const noActualYet = actual.every(v => !v);
-  let forecast;
-  if (noActualYet) {
-    forecast = work.slice();
-  } else {
-    const actualAtNow = actual[idx] || 0;
-    const workAtNow    = work[idx]   || 0;
-    const offset = actualAtNow - workAtNow;
-    forecast = actual.map((v, i) => i <= idx ? v : null);
-    for (let i = idx; i < labels.length; i++) {
-      forecast[i] = Math.max(0, Math.min(maxWork, work[i] + offset));
+  const { labels, work, actual, baseline } = s;
+  const n = labels.length;
+  const last = a => (a && a.length ? a[a.length - 1] : 0);
+  const TW = s.totalWork || last(work) || 1;
+  const TB = s.totalBaseline || last(baseline) || 1;
+  const TA = s.totalActual != null ? s.totalActual : last(actual);
+  const idx = (typeof s.statusIndex === 'number') ? s.statusIndex
+            : (typeof s.nowIndex === 'number') ? s.nowIndex : n - 1;
+  const pc = (v, t) => Math.round(v / t * 1000) / 10;
+
+  const basePct = baseline.map(v => pc(v, TB));
+  // actual booked after the status date is counted at the status date
+  const compHrs = actual.map((v, i) => i < idx ? v : i === idx ? TA : null);
+  const compPct = compHrs.map(v => v === null ? null : pc(v, TW));
+  const fcHrs = work.map(v => Math.round(v * 10) / 10);
+  const fcPct = fcHrs.map(v => pc(v, TW));
+
+  // Gap at the status date: work the schedule shows before the status date
+  // that has no actual against it (not updated, or not rescheduled forward)
+  const gapHrs = idx >= 0 ? Math.max(0, work[idx] - TA) : 0;
+  const gapPct = pc(gapHrs, TW);
+  const aheadHrs = idx >= 0 ? Math.max(0, TA - work[idx]) : 0;   // actuals beyond the schedule to date
+  const aheadPct = pc(aheadHrs, TW);
+  const gapEl = document.getElementById('scurveGap');
+  if (gapEl) {
+    gapEl.title = '';
+    if (idx < 0) { gapEl.textContent = ''; }
+    else if (aheadPct >= 1) {
+      gapEl.className = 'chart-legend-item gap-warn';
+      gapEl.textContent = `Actual ahead of schedule by ${fmtN0(aheadHrs)} hrs (${aheadPct}%) — early completions not brought back`;
+      gapEl.title = 'Actual work exceeds the scheduled work to the status date. Move work completed early back to when it was done.';
+    }
+    else if (gapPct < 1) {
+      gapEl.className = 'chart-legend-item gap-ok';
+      gapEl.textContent = '✓ Schedule statused — no gap at status date';
+    } else {
+      gapEl.className = 'chart-legend-item ' + (gapPct >= 5 ? 'gap-bad' : 'gap-warn');
+      gapEl.textContent = `Gap at Status Date: ${fmtN0(gapHrs)} hrs (${gapPct}%)`;
+      gapEl.title = 'Hours the schedule shows before the status date with no actual work booked. ' +
+        'Reschedule unstarted work to its forecast date and bring early completions back to when they were done to close the gap.';
     }
   }
-  const spent  = spentBar    || labels.map(() => 0);
-  const remain = remainingBar || labels.map(() => 0);
-  const step = Math.ceil(labels.length / 18);
+
+  const baseBar = s.baselineBar || labels.map(() => 0);
+  const actBar  = (s.actualBar || labels.map(() => 0)).map((v, i) => i <= idx ? v : null);
+
+  const sdEl = document.getElementById('scurveSD');
+  if (sdEl) sdEl.textContent = 'Status date: ' + (_statusDateTxt || (d.statusDate || '—')) +
+    (_statusDateSet ? '' : ' (not set)');
+
+  const step = Math.ceil(n / 18);
   const sparseLabels = labels.map((l, i) => i % step === 0 ? l : '');
+  const hrsOf = { 'Baseline': baseline, 'Completed': compHrs, 'Forecast': fcHrs };
   const ctx = document.getElementById('scurveCanvas').getContext('2d');
   if (_scurveChart) _scurveChart.destroy();
   _scurveChart = new Chart(ctx, {
@@ -666,34 +758,32 @@ function renderScurve() {
       labels: sparseLabels,
       datasets: [
         {
-          type: 'bar', label: 'Spent (hrs)', data: spent,
-          backgroundColor: 'rgba(91,155,213,.55)', borderColor: 'transparent',
-          yAxisID: 'yHrs', order: 5, stack: 'hrs',
+          type: 'bar', label: 'Baseline (hrs)', data: baseBar,
+          backgroundColor: 'rgba(180,180,180,.45)', borderColor: 'transparent',
+          yAxisID: 'yHrs', order: 5, barPercentage: 0.9, categoryPercentage: 0.8,
         },
         {
-          type: 'bar', label: 'Remaining (hrs)', data: remain,
-          backgroundColor: 'rgba(180,180,180,.35)', borderColor: 'transparent',
-          yAxisID: 'yHrs', order: 4, stack: 'hrs',
+          type: 'bar', label: 'Actual (hrs)', data: actBar,
+          backgroundColor: 'rgba(63,191,127,.75)', borderColor: 'transparent',
+          yAxisID: 'yHrs', order: 4, barPercentage: 0.9, categoryPercentage: 0.8,
         },
         {
-          type: 'line', label: 'Planned', data: work,
+          type: 'line', label: 'Baseline', data: basePct,
           borderColor: '#e05555', backgroundColor: 'transparent',
           borderWidth: 2, pointRadius: 0, tension: 0.4,
           yAxisID: 'yPct', order: 1,
         },
         {
-          type: 'line', label: 'Completed', data: completed,
+          type: 'line', label: 'Completed', data: compPct,
           borderColor: '#000000', backgroundColor: 'transparent',
           borderWidth: 3, borderDash: [6,3], pointRadius: 0, tension: 0.3,
-          spanGaps: false,
-          yAxisID: 'yPct', order: 2,
+          spanGaps: false, yAxisID: 'yPct', order: 2,
         },
         {
-          type: 'line', label: 'Forecast', data: forecast,
+          type: 'line', label: 'Forecast', data: fcPct,
           borderColor: '#4b8ef5', backgroundColor: 'transparent',
           borderWidth: 2, borderDash: [4,4], pointRadius: 0, tension: 0.3,
-          spanGaps: false,
-          yAxisID: 'yPct', order: 3,
+          spanGaps: false, yAxisID: 'yPct', order: 3,
         },
       ],
     },
@@ -707,11 +797,13 @@ function renderScurve() {
           backgroundColor: '#1c2330', borderColor: '#2a3444', borderWidth: 1,
           titleColor: '#b8c9e0', bodyColor: '#b8c9e0',
           callbacks: {
+            title: items => items.length ? labels[items[0].dataIndex] : '',
             label: ctx => {
-              const max = Math.max(...work.filter(Boolean));
-              if (ctx.dataset.yAxisID === 'yPct' && max > 0 && ctx.raw !== null) {
-                const pct = (ctx.raw / max * 100).toFixed(1);
-                return ` ${ctx.dataset.label}: ${ctx.raw} hrs (${pct}%)`;
+              if (ctx.raw === null || ctx.raw === undefined) return null;
+              if (ctx.dataset.yAxisID === 'yPct') {
+                const h = hrsOf[ctx.dataset.label][ctx.dataIndex];
+                const of = ctx.dataset.label === 'Baseline' ? ' of baseline' : ' of forecast';
+                return ` ${ctx.dataset.label}: ${ctx.raw}%${of} (${fmtN0(h)} hrs)`;
               }
               return ` ${ctx.dataset.label}: ${ctx.raw} hrs`;
             }
@@ -724,14 +816,8 @@ function renderScurve() {
           grid:  { color: 'rgba(42,52,68,.4)' },
         },
         yPct: {
-          type: 'linear', position: 'left', min: 0,
-          ticks: {
-            color: '#4d6080', font: { size: 11 },
-            callback: v => {
-              const max = Math.max(...work.filter(Boolean));
-              return max > 0 ? Math.round(v / max * 100) + '%' : v;
-            },
-          },
+          type: 'linear', position: 'left', min: 0, max: 100,
+          ticks: { color: '#4d6080', font: { size: 11 }, stepSize: 20, callback: v => v + '%' },
           grid: { color: 'rgba(42,52,68,.4)' },
         },
         yHrs: {
@@ -1091,6 +1177,27 @@ loadAll();
 </script>
 
 <!-- ══ PACKAGE DRILL-DOWN POP-UP (added — self-contained) ══ -->
+<div class="pd-bg" id="sdModal" onclick="if(event.target===this)sdClose()">
+  <div class="pd-modal" role="dialog" aria-modal="true" style="max-width:380px">
+    <div class="pd-head">
+      <div><div class="pd-eyebrow">Scheduler</div><div class="pd-title">Set status date</div></div>
+      <button class="pd-close" onclick="sdClose()" aria-label="Close">×</button>
+    </div>
+    <div class="pd-body">
+      <div class="sd-row">
+        <div><label for="sdDay">Status date (as set in MS Project)</label>
+          <div style="display:flex;gap:6px">
+            <input type="date" id="sdDay" style="flex:1">
+            <select id="sdHour" title="Hour (24-hour)" style="width:74px"></select>
+            <select id="sdMin" title="Minutes" style="width:74px"></select>
+          </div></div>
+        <div><label for="sdPin">Scheduler PIN</label><input type="password" id="sdPin" inputmode="numeric" autocomplete="off"></div>
+      </div>
+      <div class="sd-msg" id="sdMsg"></div>
+      <div class="sd-actions"><button class="btn" onclick="sdClose()">Cancel</button><button class="btn" id="sdSave" onclick="sdSave()" style="border-color:var(--amber);color:var(--amber)">Save</button></div>
+    </div>
+  </div>
+</div>
 <div class="pd-bg" id="pdModal" onclick="if(event.target===this)pdClose()">
   <div class="pd-modal" role="dialog" aria-modal="true" aria-labelledby="pdTitle">
     <div class="pd-head">
@@ -1103,6 +1210,7 @@ loadAll();
 <script>
 // Notes and task detail are read from the Tasks tab of the schedule sheet,
 // fetched only when a row is first clicked (cached afterwards; refreshed by ↻ Refresh).
+// Tasks in an area are matched on Team / Area / Sub Team (Talison layout).
 const PD_SHEET_ID = '1drRWgbSnT1EdbF3Th1vRVNV4aL5_FP3xWgM76PW9hks';
 const PD_TAB = 'Tasks';
 let _pdRows = null, _pdLoading = null, _pdErr = null;
@@ -1134,6 +1242,7 @@ function pdParse(json){
   const ix = n => L.indexOf(n.toLowerCase());
   const I = { name:ix('Name'), pct:ix('% Complete'), pf:ix('Planned Finish'), team:ix('Team'), area:ix('Area'),
     sub:ix('Sub Team'), slack:ix('Total Slack'), cpct:ix('CPCT'), summary:ix('Summary'), notes:ix('Notes'),
+    wo:ix('Work Order'), op:ix('Task Number'), start:ix('Start'), ms:ix('Milestone'),
     es:L.findIndex(l => /^exec\w*_summary$/.test(l)) };
   const c = (r,i) => i >= 0 ? r.c[i] : null;
   const str = x => (!x || x.v == null) ? '' : String(x.f ?? x.v).trim();
@@ -1143,7 +1252,8 @@ function pdParse(json){
     name:str(c(r,I.name)), pct:Math.round(num(c(r,I.pct))), pf:dt(c(r,I.pf)),
     team:str(c(r,I.team)), area:str(c(r,I.area)), sub:str(c(r,I.sub)),
     slack:num(c(r,I.slack)), cpct:Math.round(num(c(r,I.cpct))),
-    summary:/^y/i.test(str(c(r,I.summary))), es:/^y/i.test(str(c(r,I.es))), notes:str(c(r,I.notes))
+    summary:/^y/i.test(str(c(r,I.summary))), es:/^y/i.test(str(c(r,I.es))), notes:str(c(r,I.notes)),
+    wo:str(c(r,I.wo)), op:str(c(r,I.op)), start:dt(c(r,I.start)), ms:/^y/i.test(str(c(r,I.ms)))
   })).filter(r => r.name);
 }
 
@@ -1174,33 +1284,37 @@ function pdShow(name){
   pdFetch().then(rows => { if (document.getElementById('pdTitle').textContent === name) pdDetail(name, rows); });
 }
 
+let _pdLists = null, _pdSel = 'late';
 function pdDetail(name, rows){
-  const key = pdNorm(name), now = new Date();
+  const key = pdNorm(name), now = _statusDate || new Date();
   const sumRow = rows.find(r => r.summary && r.es && pdNorm(r.name) === key)
               || rows.find(r => r.summary && pdNorm(r.name) === key)
               || rows.find(r => pdNorm(r.name) === key);
   const kids = rows.filter(r => !r.summary && (pdNorm(r.team) === key || pdNorm(r.area) === key || pdNorm(r.sub) === key));
   let h = '';
   if (kids.length){
-    const done = kids.filter(t => t.pct >= 100).length;
-    const prog = kids.filter(t => t.pct > 0 && t.pct < 100).length;
-    const late = kids.filter(t => t.pct < 100 && t.pf && t.pf < now);
-    const crit = kids.filter(t => t.pct < 100 && t.slack <= 0).length;
-    h += `<div class="pd-sec-label">Tasks in this area</div>
+    // "Late" and "Late by" are measured from the STATUS DATE of the upload
+    _pdLists = {
+      all:  { label:'All tasks',          rows: kids },
+      done: { label:'Complete',           rows: kids.filter(t => t.pct >= 100) },
+      prog: { label:'In progress',        rows: kids.filter(t => t.pct > 0 && t.pct < 100) },
+      late: { label:'Late',               rows: kids.filter(t => t.pct < 100 && t.pf && t.pf < now) },
+      crit: { label:'0 slack open',       rows: kids.filter(t => t.pct < 100 && t.slack <= 0) },
+    };
+    _pdSel = _pdLists.late.rows.length ? 'late' : 'all';
+    const tile = (k, color) => `<div class="pd-stat pd-tile" data-k="${k}" onclick="pdPick('${k}')" title="Show list">
+        <b style="color:${color}">${_pdLists[k].rows.length}</b><span>${k === 'all' ? 'Total' : _pdLists[k].label}</span></div>`;
+    h += `<div class="pd-sec-label">Tasks in this area <span class="pd-hint">— click a tile to list the tasks · 📝 = task has a Project note (hover to read)</span></div>
       <div class="pd-stats">
-        <div class="pd-stat"><b>${kids.length}</b><span>Total</span></div>
-        <div class="pd-stat"><b style="color:var(--green)">${done}</b><span>Complete</span></div>
-        <div class="pd-stat"><b style="color:var(--blue)">${prog}</b><span>In progress</span></div>
-        <div class="pd-stat"><b style="color:${late.length ? 'var(--red)' : 'var(--bright)'}">${late.length}</b><span>Late</span></div>
-        <div class="pd-stat"><b style="color:${crit ? 'var(--amber)' : 'var(--bright)'}">${crit}</b><span>0 Slack open</span></div>
-      </div>`;
-    if (late.length){
-      const top = late.map(t => ({ t, hrs:(now - t.pf)/36e5 })).sort((x,y) => y.hrs - x.hrs).slice(0,6);
-      const cp = c => c === 1 ? '<span style="color:var(--red)">●</span> CP' : c === 2 ? '<span style="color:var(--amber)">●</span> CT' : '—';
-      h += `<table class="pd-late"><thead><tr><th>Late task</th><th>CP/CT</th><th>%</th><th>Late by</th></tr></thead><tbody>` +
-        top.map(({t,hrs}) => `<tr><td>${pdEsc(t.name)}</td><td>${cp(t.cpct)}</td><td>${t.pct}%</td><td style="color:var(--red);font-family:var(--font-d)">${pdDelay(hrs)}</td></tr>`).join('') +
-        `</tbody></table>` + (late.length > 6 ? `<div class="pd-more">+ ${late.length - 6} more late tasks</div>` : '<div class="pd-more"></div>');
-    }
+        ${tile('all', 'var(--bright)')}
+        ${tile('done', 'var(--green)')}
+        ${tile('prog', 'var(--blue)')}
+        ${tile('late', _pdLists.late.rows.length ? 'var(--red)' : 'var(--bright)')}
+        ${tile('crit', _pdLists.crit.rows.length ? 'var(--amber)' : 'var(--bright)')}
+      </div>
+      <div id="pdList"></div>`;
+  } else {
+    _pdLists = null;
   }
   const note = sumRow && sumRow.notes;
   h += `<div class="pd-sec-label">Notes from Project</div>` +
@@ -1209,9 +1323,75 @@ function pdDetail(name, rows){
       : note ? `<div class="pd-notes">${pdEsc(note)}</div>`
              : `<div class="pd-notes pd-empty">No notes recorded against this summary task in Project.</div>`);
   document.getElementById('pdDetail').innerHTML = h;
+  if (_pdLists) pdPick(_pdSel);
+}
+function pdPick(k){
+  if (!_pdLists || !_pdLists[k]) return;
+  _pdSel = k;
+  document.querySelectorAll('.pd-tile').forEach(el => el.classList.toggle('sel', el.dataset.k === k));
+  const now = _statusDate || new Date();
+  const L = _pdLists[k];
+  const cp = c => c === 1 ? '<span style="color:var(--red)">●</span> CP' : c === 2 ? '<span style="color:var(--amber)">●</span> CT' : '—';
+  const fmtD = d => d ? `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` : '—';
+  let list = L.rows.slice();
+  if (k === 'late') list.sort((x, y) => x.pf - y.pf);          // most overdue first
+  const MAX = 400;
+  const showLate = k === 'late';
+  const body = list.slice(0, MAX).map(t => {
+    const wo = t.wo ? `${pdEsc(t.wo)}${t.op ? '/' + pdEsc(t.op) : ''}` : '—';
+    const lateBy = showLate ? `<td style="color:var(--red);font-family:var(--font-d)">${pdDelay((now - t.pf) / 36e5)}</td>` : '';
+    const nt = t.notes ? ` <span class="pd-note" title="${pdEsc(t.notes)}">📝</span>` : '';
+    return `<tr><td>${pdEsc(t.name)}${t.ms ? ' <span class="pd-ms">◆</span>' : ''}${nt}</td>
+      <td class="pd-wo">${wo}</td><td>${cp(t.cpct)}</td><td>${t.pct}%</td><td>${fmtD(t.pf)}</td>${lateBy}</tr>`;
+  }).join('');
+  document.getElementById('pdList').innerHTML = !list.length
+    ? `<div class="pd-more">No tasks in this list.</div>`
+    : `<div class="pd-list-head">${L.label} — ${list.length} task${list.length === 1 ? '' : 's'}${showLate ? ' (from status date ' + pdEsc(_statusDateTxt || '') + ')' : ''}</div>
+       <div class="pd-scroll"><table class="pd-late"><thead><tr><th>Task</th><th>WO / Task</th><th>CP/CT</th><th>%</th><th>Finish</th>${showLate ? '<th>Late by</th>' : ''}</tr></thead>
+       <tbody>${body}</tbody></table></div>` +
+      (list.length > MAX ? `<div class="pd-more">Showing first ${MAX} of ${list.length}.</div>` : '<div class="pd-more"></div>');
 }
 function pdClose(){ document.getElementById('pdModal').classList.remove('open'); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') pdClose(); });
+// ── STATUS DATE (scheduler edit) ──────────────────────────────
+// Saved in the Apps Script's own settings (Script Properties), not the sheet, so a new
+// schedule upload doesn't wipe it. Everyone viewing this dashboard sees the same status date.
+function sdOpen(){
+  const d = _statusDate || new Date(), p = n => String(n).padStart(2, '0');
+  const hs = document.getElementById('sdHour'), ms = document.getElementById('sdMin');
+  if (!hs.options.length) {
+    hs.innerHTML = Array.from({length: 24}, (_, h) => `<option value="${p(h)}">${p(h)}:</option>`).join('');
+    ms.innerHTML = ['00','15','30','45'].map(m => `<option value="${m}">${m}</option>`).join('');
+  }
+  document.getElementById('sdDay').value = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+  hs.value = p(d.getHours());
+  ms.value = p(Math.floor(d.getMinutes() / 15) * 15);
+  document.getElementById('sdPin').value = '';
+  document.getElementById('sdMsg').textContent = '';
+  document.getElementById('sdModal').classList.add('open');
+  setTimeout(() => document.getElementById('sdPin').focus(), 50);
+}
+function sdClose(){ document.getElementById('sdModal').classList.remove('open'); }
+async function sdSave(){
+  const day = document.getElementById('sdDay').value;
+  const v = day ? `${day}T${document.getElementById('sdHour').value}:${document.getElementById('sdMin').value}` : '';
+  const pin = document.getElementById('sdPin').value.trim();
+  const msg = document.getElementById('sdMsg'), btn = document.getElementById('sdSave');
+  if (!v)   { msg.style.color = 'var(--red)'; msg.textContent = 'Choose a date and time.'; return; }
+  if (!pin) { msg.style.color = 'var(--red)'; msg.textContent = 'Enter the scheduler PIN.'; return; }
+  btn.disabled = true; msg.style.color = 'var(--muted)'; msg.textContent = 'Saving…';
+  try {
+    const r = await fetch(GAS_URL + '?action=meta&setStatusDate=' + encodeURIComponent(v) +
+      '&pin=' + encodeURIComponent(pin) + '&t=' + Date.now());
+    const d = await r.json();
+    if (!d.ok) { msg.style.color = 'var(--red)'; msg.textContent = d.message || 'Could not save.'; return; }
+    sdClose();
+    loadAll();
+  } catch (e) {
+    msg.style.color = 'var(--red)'; msg.textContent = 'Could not save: ' + e.message;
+  } finally { btn.disabled = false; }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('sdModal').classList.contains('open')) sdSave(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { pdClose(); sdClose(); } });
 // Clear the cache when the dashboard's Refresh runs, so notes are re-read next click
 (function(){ const orig = window.loadAll; if (typeof orig === 'function') window.loadAll = function(){ _pdRows = null; _pdErr = null; return orig.apply(this, arguments); }; })();
 </script>
